@@ -15,24 +15,28 @@ let dataset = { "red":[ [8, -8],
 let np = [15, 10]; //is np red or green?
 let runGradient = true; //only want to run it once //TODO refactor
 let gradientResult; // stores the color values for all the gradient boxes
-
+let label;
 
 function setup() {
-  createCanvas(scale * 40, scale * 40);
+  let size = 40;
+  createCanvas(scale * size, scale * size);
   background(255);
   frameRate(30);
-  //console.log(knn(dataset, np, 3));
   gradientResult = prepareGradient();
+  label = createP(knn(dataset, np, 3)["result"])
 }
 
 function draw() {
   background(255)
   translate(width/2, height/2);
   np = [(mouseX - width/2)/scale, (mouseY- height/2)/scale];
-  showKNN(knn(dataset, np, 3)["k-nearest"])
+  let current = knn(dataset, np, 3);
+  showKNN(current["k-nearest"]);
   showGradient();
   showGrid();
   showPoints(dataset);
+  label.elt.innerText = np + ", " + current["result"];
+  label.style('color', current["result"])
 }
 
 function showPoint(p) {
@@ -80,9 +84,10 @@ function showKNN(nearest) {
 
 function prepareGradient() {
   let results = [];
-  for(var i = 0; i < width; i+=scale) {
-    for(var j = 0; j < height; j+=scale) {
+  for(var i = -width/2; i < width/2; i+=scale) {
+    for(var j = -width/2; j < height/2; j+=scale) {
       let result = [knn(dataset, [i, j], 3), [i, j]];
+      console.log(result)
       results.push(result);
     }
   }
@@ -90,18 +95,16 @@ function prepareGradient() {
 }
 
 function showGradient() {
-  push()
   for(var i = 0; i < gradientResult.length; i++) {
     var clr = color(gradientResult[i][0]["result"]);
-    var x = gradientResult[i][1][0]/scale - width/4-2;
-    var y = gradientResult[i][1][1]/scale - height/4-2;
-    clr.setAlpha(20);
+    var x = gradientResult[i][1][0];
+    var y = gradientResult[i][1][1];
+    clr.setAlpha(2);
     strokeWeight(scale)
     stroke(clr);
     fill(clr);
     rect(x, y, x + scale, y + scale );
   }
-  pop()
 }
 
 
